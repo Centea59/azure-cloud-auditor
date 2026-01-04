@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: inventory-run-01
+spec:
+  template:
+    spec:
+      # Don't forget to create the secret first!
+      imagePullSecrets:
+      - name: acr-drill-secret
+
+      containers:
+      - name: inventory
+        image: acrdrillcalin009.azurecr.io/storage-inventory:v1
+        imagePullPolicy: Always
+        env:
+        # COPY these from your .env file
+        - name: AZURE_CLIENT_ID
+          value: 8cbda42b-5955-4b03-95a3-1d15e4f692d7
+        - name: AZURE_CLIENT_SECRET
+          value: oy18Q~Fu53027.PqwKIkQYujdDhZ.qYzk.Kh3dzB
+        - name: AZURE_TENANT_ID
+          value: 065a061d-1ab9-4c67-9fcc-6d12e2408bbe
+        - name: AZURE_SUBSCRIPTION_ID
+          value: 33c49176-846d-4d9e-a68d-6e797e5184c0
+
+      restartPolicy: Never
