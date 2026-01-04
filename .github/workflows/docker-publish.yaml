@@ -1,0 +1,46 @@
+name: Build and Push to ACR
+
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    
+    steps:
+    # 1. Check out the code from the repo
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    # 2. Log in to Azure (using the JSON secret)
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    # 3. Log in to the Container Registry
+    - name: Login to ACR
+      uses: azure/docker-login@v1
+      with:
+        login-server: ${{ secrets.ACR_LOGIN_SERVER }}
+        username: ${{ secrets.ACR_USERNAME }}
+        password: ${{ secrets.AZURE_CREDENTIALS }} 
+        # Note: The AZURE_CREDENTIALS JSON implicitly handles the password logic 
+        # when using azure/login, but for docker-login specifically, 
+        # we can use the 'admin' keys or stick to the Service Principal.
+        # Let's simplify: We will assume the SP has push rights.
+        
+    # ALTERNATIVE: Simpler Docker Login step
+    - name: Log in to Docker Registry
+      run: |
+        az acr login --name ${{ secrets.ACR_USERNAME }}
+
+    # 4. Build and Push the Image
+    - name: Build and Push Image
+      run: |
+        docker build . -t ${{ secrets.ACR_LOGIN_SERVER }}/storage-inventory:v1
+        docker push ${{ secrets.ACR_LOGIN_SERVER }}/storage-inventory:v1
