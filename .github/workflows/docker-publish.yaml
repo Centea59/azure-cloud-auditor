@@ -15,7 +15,22 @@ jobs:
     # 1. Check out the code from the repo
     - name: Checkout Code
       uses: actions/checkout@v3
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
 
+    - name: Install Dependencies
+      run: |
+        pip install -r requirements.txt
+
+    - name: Lint with Pylint
+      run: |
+        # Run pylint on the script. 
+        # --fail-under=5 means "If the code score is below 5/10, stop the pipeline"
+        pylint inventory.py --fail-under=5
+    # ----------------
     # 2. Log in to Azure (using the JSON secret)
     - name: Azure Login
       uses: azure/login@v1
